@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-5 mb-5 text-center" >
+    <h1>사진에서 텍스트를 뽑아내는 OCR</h1>
+    <hr>
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="pic" class="form-control">
+        <div class="text-center mt-4 mb-3">
+            <h4>Based Language</h4>
+            <select class="form-select" name=lang size="3" aria-label="size 3 select example">
+                <option value="kor" {% if lang == "kor" or not lang %}selected{% endif %}>Korean</option>
+                <option value="eng" {% if lang == "eng" %}selected{% endif %}>English</option>
+                <option value="chi_sim" {% if lang == "chi_sim" %}selected{% endif %}>Chinese</option>
+                <option value="jpn" {% if lang == "jpn" %}selected{% endif %}>Japanese</option>
+                <option value="vie" {% if lang == "vie" %}selected{% endif %}>Vietnames</option>
+            </select>
+        </div>        
+        <button class="btn btn-success mt-3 mb-5">뽑아줘</button>   
+    </form>
+    
+    <form method="POST" action="{% url 'trans:index' %}">
+        {% csrf_token %}
+        <div>
+            <textarea style="width:800px; height: 400px;" name="before">{{ con }}</textarea>
+        </div>
+        <button class="btn btn-primary">번역하러가기</button>
+    </form>     
+</div>  
+
+{% endblock %}

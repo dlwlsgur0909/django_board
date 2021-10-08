@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% load mathfilters %}
+
+<div class="container mt-5">
+
+    <h1>게시판</h1>
+    <div class="text-end">
+        <a href="{% url 'board:index' %}"><button type="button" class="btn btn-primary">홈</button></a>
+        <a href="{% url 'board:create' %}"><button type="button" class="btn btn-success">글작성</button></a>
+    </div>
+
+    <table class="table mt-5 table-hover">
+        <thead style="background-color: #4758f0c5;">
+            <tr>
+                <th scope="col">N0</th>
+                <th scope="col">Subject</th>
+                <th scope="col">Sumamry</th>
+                <th scope="col">Writer</th>
+                <th scope="col">Up</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% if con %}
+            {% for i in con%}
+                <tr>
+                    <th scope="row">{{ con.number|sub:1|mul:10|add:forloop.counter }} </th>
+                    <td>
+                        <a href="{% url 'board:detail' i.id %}">{{ i.subject }}</a>
+                        {% if i.reply_set.count %}
+                           <sup style="color :crimson;">reply : {{ i.reply_set.count }}</sup>
+                        {% endif %}
+                    </td>
+                    <td>{{ i.content }}</td>
+                    {% if user.username == i.writer %}
+                        <td><mark style="background-color: #d3e2a8;">{{ i.writer }}</mark></td>
+                    {% else %}
+                        <td>{{ i.writer }}</td>
+                    {% endif %}
+                    <td>{{ i.up.all.count }}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+        <td colspan="5">No Result</td>
+        {% endif %}
+        </tbody>
+    </table>
+
+    <form>
+        <div class="row mt-4 mb-5">
+            <div class="col-lg-3">
+                <select class="form-select" name="cate" aria-label="Default select example">
+                    <option>Select Menu</option>
+                    <option value="subject" {% if cate == "subject" %} selected {% endif %}>Subject</option>
+                    <option value="writer" {% if cate == "writer" %} selected {% endif %}>Writer</option>
+                    <option value="content" {% if cate == "content" %} selected {% endif %}>Content</option>
+                </select>
+            </div>
+            <div class="col-lg-8">
+                <input type="text" name="kw" class="form-control" aria-describedby="emailHelp">
+            </div>
+            <div class="col-lg-1">
+                <button type="submit" class="btn btn-outline-dark">검색</button>
+            </div>
+        </div>
+    </form>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if con.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'board:index' %}?page={{con.previous_page_number}}&kw={{ kw }}&cate={{ cate }}">이전</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">이전</a>
+                </li>
+            {% endif %}
+            
+
+            {% for i in con.paginator.page_range %}
+                {% if i >= con.number|add:-2 and i <= con.number|add:2 %}
+                    {% if i == con.number %}
+                        <li class="page-item active"><a class="page-link" href="{% url 'board:index' %}?page={{i}}&kw={{ kw }}&cate={{ cate }}">{{i}}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="{% url 'board:index' %}?page={{i}}&kw={{ kw }}&cate={{ cate }}">{{i}}</a></li>
+                    {% endif %}
+                {% endif %}
+
+
+            {% endfor %}
+            
+            {% if con.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'board:index' %}?page={{ con.next_page_number }}&kw={{ kw }}&cate={{ cate }}">다음</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">다음</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</div>
+
+<style>
+    a {
+        text-decoration: none;
+        color: black;
+    }
+    a:hover {
+        color: rgba(238, 25, 25, 0.918);
+        font-weight: bold;
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load mathfilters %}
+
+<div class="container mb-3 mt-5">
+    
+    당신이 참여한 주제들
+    <p>
+        {% for i in user.topic_set.all %}
+            {{ i }}
+        {% endfor %}
+    </p>
+    <div class="text-end">
+        <a href="{% url 'vote:create' %}"><button class="btn btn-success">투표생성</button></a>
+        <a href="{% url 'vote:create' %}"><button class="btn btn-success">NOT VOTED</button></a>
+    </div>
+
+    {% for i in con %}
+        <div class="card mt-4 mb-4">
+            {% if user in i.voter.all %}
+                <div class="card-header" style="background-color: rgb(93, 115, 240);">
+                    Voted √
+                </div>
+            {% else %}
+                <div class="card-header" style="background-color: rgb(247, 111, 111);">
+                    Not Voted
+                </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ i.subject }}</h5>
+                <p class="card-text">{{ i.comment }}</p>
+                <a href="{% url 'vote:detail' i.id %}" class="btn btn-primary">투표하기</a>
+            </div>
+        </div>
+    {% endfor %}
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if con.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'vote:index' %}?page={{con.previous_page_number}}">이전</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">이전</a>
+                </li>
+            {% endif %}
+            
+
+            {% for i in con.paginator.page_range %}
+                {% if i >= con.number|add:-2 and i <= con.number|add:2 %}
+                    {% if i == con.number %}
+                        <li class="page-item active"><a class="page-link" href="{% url 'vote:index' %}?page={{i}}">{{i}}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="{% url 'vote:index' %}?page={{i}}">{{i}}</a></li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            
+            {% if con.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="{% url 'vote:index' %}?page={{ con.next_page_number }}">다음</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">다음</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</div>
+
+
+{% endblock %}
